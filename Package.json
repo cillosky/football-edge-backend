@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "node --env-file=.env api/football-fixtures.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
