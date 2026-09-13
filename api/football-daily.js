@@ -21,6 +21,9 @@ const SEASON            = '2026';
 const LEAGUES = [
   { code: 'PL',  name: 'Premier League', understat: 'EPL',        sport: 'soccer_epl'                  },
   { code: 'BL1', name: 'Bundesliga',     understat: 'Bundesliga', sport: 'soccer_germany_bundesliga'   },
+  { code: 'SA',  name: 'Serie A',        understat: 'Serie_A',    sport: 'soccer_italy_serie_a'        },
+  { code: 'PD',  name: 'La Liga',        understat: 'La_liga',    sport: 'soccer_spain_la_liga'        },
+  { code: 'FL1', name: 'Ligue 1',        understat: 'Ligue_1',    sport: 'soccer_france_ligue_one'     },
 ];
 
 // ─── NORMALIZZAZIONE NOMI ────────────────────────────────────────────────────
