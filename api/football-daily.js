@@ -6,6 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import { normalizeName as normFD } from '../team-name-map.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -69,7 +70,6 @@ const ODDS_NAME_MAP = {
   'Bournemouth': 'Bournemouth', 'Crystal Palace': 'Crystal Palace',
 };
 
-function normFD(name)   { return TEAM_NAME_MAP[name]   || name; }
 function normOdds(name) { return ODDS_NAME_MAP[name]   || name; }
 
 // ─── STEP 1: FIXTURES ────────────────────────────────────────────────────────

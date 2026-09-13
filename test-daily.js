@@ -4,6 +4,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import puppeteer from 'puppeteer';
+import { normalizeName as normFD } from './team-name-map.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -58,7 +59,6 @@ const ODDS_NAME_MAP = {
   'Leeds United': 'Leeds', 'Hull City': 'Hull', 'Coventry City': 'Coventry',
 };
 
-function normFD(n)   { return TEAM_NAME_MAP[n]   || n; }
 function normOdds(n) { return ODDS_NAME_MAP[n]   || n; }
 
 // ─── STEP 1: FIXTURES ────────────────────────────────────────────────────────
