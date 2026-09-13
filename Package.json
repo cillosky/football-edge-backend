@@ -6,6 +6,12 @@
     "dev": "node --env-file=.env api/football-fixtures.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@sparticuz/chromium": "^153.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "puppeteer": "^25.10.0",
+    "puppeteer-core": "^25.10.0"
+  },
+  "allowScripts": {
+    "puppeteer@25.10.0": true
   }
 }
