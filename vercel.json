@@ -5,6 +5,10 @@
     {
       "path": "/api/football-daily",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/football-results",
+      "schedule": "30 23 * * *"
     }
   ]
 }

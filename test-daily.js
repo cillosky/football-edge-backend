@@ -4,7 +4,6 @@
 
 import { createClient } from '@supabase/supabase-js';
 import puppeteer from 'puppeteer';
-import { normalizeName as normFD } from './team-name-map.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -59,6 +58,7 @@ const ODDS_NAME_MAP = {
   'Leeds United': 'Leeds', 'Hull City': 'Hull', 'Coventry City': 'Coventry',
 };
 
+function normFD(n)   { return TEAM_NAME_MAP[n]   || n; }
 function normOdds(n) { return ODDS_NAME_MAP[n]   || n; }
 
 // ─── STEP 1: FIXTURES ────────────────────────────────────────────────────────
@@ -175,6 +175,29 @@ async function fetchElo() {
 }
 
 // ─── STEP 4: ODDS ────────────────────────────────────────────────────────────
+const STANDARD_LINES = [1.5, 2.5, 3.5, 4.5];
+
+function findBalancedLine(outcomes) {
+  const lines = {};
+  for (const o of outcomes) {
+    if (!STANDARD_LINES.includes(o.point)) continue;
+    if (!lines[o.point]) lines[o.point] = {};
+    lines[o.point][o.name] = o.price;
+  }
+  let bestLine = null, bestBalance = 999;
+  for (const [point, prices] of Object.entries(lines)) {
+    if (!prices.Over || !prices.Under) continue;
+    if (prices.Over < 1.30 || prices.Under < 1.30) continue;
+    if (prices.Over > 3.50 || prices.Under > 3.50) continue;
+    const balance = Math.abs(prices.Over - prices.Under);
+    if (balance < bestBalance) {
+      bestBalance = balance;
+      bestLine = { line: parseFloat(point), over: prices.Over, under: prices.Under };
+    }
+  }
+  return bestLine;
+}
+
 async function fetchOdds() {
   console.log('\n[4/5] ODDS');
   let updated = 0;
@@ -187,22 +210,35 @@ async function fetchOdds() {
     for (const ev of events) {
       const homeN = normOdds(ev.home_team);
       const awayN = normOdds(ev.away_team);
-      let pinOver = null, bookOver = null;
+      let pinLine = null, pinOver = null;
+      let bookLine = null, bookOver = null, bookName = null;
+
       for (const bm of ev.bookmakers||[]) {
         const totals = bm.markets?.find(m=>m.key==='totals');
-        if (!totals) continue;
-        const over25 = totals.outcomes?.find(o=>o.name==='Over'&&o.point===2.5);
-        if (!over25) continue;
-        if (bm.key==='pinnacle') pinOver = over25.price;
-        if (bm.key==='williamhill'&&!bookOver) bookOver = over25.price;
+        if (!totals?.outcomes) continue;
+        if (bm.key==='pinnacle') {
+          const b = findBalancedLine(totals.outcomes);
+          if (b) { pinLine = b.line; pinOver = b.over; }
+        }
+        if (bm.key==='williamhill' && !bookOver) {
+          const b = findBalancedLine(totals.outcomes);
+          if (b) { bookLine = b.line; bookOver = b.over; bookName = bm.key; }
+        }
       }
-      if (!pinOver&&!bookOver) continue;
+
+      if (!pinOver && !bookOver) continue;
+      const finalLine = pinLine || bookLine || 2.5;
+
       const { data: games } = await supabase.from('football_games')
         .select('match_id').eq('league',league.code).eq('home_team',homeN).eq('away_team',awayN);
       if (!games?.length) continue;
+
       await supabase.from('football_games').update({
-        ou_quote_pin: pinOver||null, ou_quote_book: bookOver||null,
-        ou_line_source: bookOver?'ODDS_API':'PINNACLE', updated_at: new Date().toISOString(),
+        ou_line:         finalLine,
+        ou_quote_pin:    pinOver  || null,
+        ou_quote_book:   bookOver || null,
+        ou_line_source:  bookName || 'PINNACLE',
+        updated_at:      new Date().toISOString(),
       }).eq('match_id', games[0].match_id);
       updated++;
     }
