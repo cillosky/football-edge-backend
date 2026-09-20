@@ -1,0 +1,17 @@
+name: Close Football Signals
+
+on:
+  schedule:
+    # Ogni mattina alle 07:00 UTC (09:00 ora italiana)
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  close-signals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chiudi segnali di ieri con W/L
+        run: |
+          curl -s -w "\nHTTP %{http_code}\n" \
+            "https://football-edge-backend.vercel.app/api/football-close-signals"
+        timeout-minutes: 5
