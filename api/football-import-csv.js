@@ -16,6 +16,7 @@ const LEAGUES = [
   { code: 'SA',  name: 'Serie A'        },
   { code: 'PD',  name: 'La Liga'        },
   { code: 'FL1', name: 'Ligue 1'        },
+  { code: 'DED', name: 'Eredivisie'     },
 ];
 
 export default async function handler(req, res) {
