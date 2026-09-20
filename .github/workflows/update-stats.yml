@@ -1,0 +1,16 @@
+name: Weekly Stats Update
+
+on:
+  schedule:
+    - cron: '0 6 * * 2'
+  workflow_dispatch:
+
+jobs:
+  update-football-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update football_teams_stats (stagione 2526)
+        run: |
+          curl -f -s -o /dev/null -w "HTTP %{http_code}\n" \
+            "https://football-edge-backend.vercel.app/api/football-import-csv?season=2526"
+        timeout-minutes: 5
